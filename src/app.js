@@ -1,3 +1,4 @@
+require('dotenv').config()
 const fastify = require('fastify')({ logger: true })
 const middie = require('@fastify/middie')
 const cors = require('@fastify/cors')

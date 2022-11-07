@@ -19,6 +19,7 @@
     "@fastify/middie": "^8.0.0",
     "@prisma/client": "^4.5.0",
     "bcrypt": "^5.1.0",
+    "dotenv": "^16.0.3",
     "fastify": "^4.8.1",
     "moment": "^2.29.4",
     "pm2": "^5.2.2",
