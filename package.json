@@ -1,0 +1,36 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "pm2": "pm2 start processes.json --no-daemon",
+    "start": "node src/app.js",
+    "test": "jest",
+    "dev": "nodemon src/app.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "author": "benoit blaevoet",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^8.1.1",
+    "@fastify/middie": "^8.0.0",
+    "@prisma/client": "^4.5.0",
+    "bcrypt": "^5.1.0",
+    "fastify": "^4.8.1",
+    "moment": "^2.29.4",
+    "pm2": "^5.2.2",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "eslint": "8.22.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "nodemon": "^2.0.20",
+    "prisma": "^4.5.0"
+  }
+}
