@@ -23,6 +23,7 @@
     "fastify": "^4.8.1",
     "moment": "^2.29.4",
     "pm2": "^5.2.2",
+    "slugify": "^1.6.5",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {

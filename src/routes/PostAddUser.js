@@ -1,16 +1,21 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const slugify = require('slugify')
 
 module.exports = (fastify) => {
   fastify.post('/adduser', async (request, reply) => {
-    const { name, email } = request.body
+    const { username, email, password, userRoleId } = request.body
+    const slug = slugify(username, { lower: true, strict: true })
     const user = await prisma.user.create({
       data: {
-        name,
-        email
+        username,
+        email,
+        password,
+        userRoleId,
+        slug
       }
     })
-    const requestFeedback = { request_feedback: `L'utilisateur ${user.name} a bien été ajouter dans la base de donnée` }
+    const requestFeedback = { request_feedback: `L'utilisateur ${user.username} a bien été ajouter dans la base de donnée` }
     reply.status(200).send(Object.assign(user, requestFeedback))
   })
 }

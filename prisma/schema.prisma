@@ -9,8 +9,8 @@ datasource db {
 
 model User {
   id            Int              @id @default(autoincrement())
-  username      String           @db.VarChar(25)
-  slug          String           @db.VarChar(25)
+  username      String           @unique @db.VarChar(25)
+  slug          String           @unique @db.VarChar(25)
   email         String           @unique @db.VarChar(255)
   password      String           @db.VarChar(255)
   banned        Boolean          @default(false)
@@ -23,12 +23,14 @@ model User {
   fromUser      PrivateMessage[] @relation(name: "fromUser_User")
   toUser        PrivateMessage[] @relation(name: "toUser_User")
   FavoriteForum FavoriteForum[]
+  createdAt     DateTime         @default(now()) @db.Timestamp(6)
+  updateAt      DateTime         @default(now()) @updatedAt() @db.Timestamp(6)
 }
 
 model UserRole {
   id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(25)
-  slug         String     @db.VarChar(25)
+  name         String     @unique @db.VarChar(25)
+  slug         String     @unique @db.VarChar(25)
   User         User[]
   userRightsId Int
   userRights   UserRights @relation(fields: [userRightsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -62,10 +64,14 @@ model Profile {
 
 model Forum {
   id            Int             @id @default(autoincrement())
-  name          String          @db.VarChar(255)
-  slug          String          @db.VarChar(255)
+  name          String          @unique @db.VarChar(255)
+  slug          String          @unique @db.VarChar(255)
+  categoryId    Int
+  category      Category        @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Thread        Thread[]
   FavoriteForum FavoriteForum[]
+  createdAt     DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime        @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model FavoriteForum {
@@ -79,12 +85,15 @@ model FavoriteForum {
 model Thread {
   id         Int        @id @default(autoincrement())
   title      String     @db.VarChar(255)
-  slug       String     @db.VarChar(255)
+  slug       String     @unique @db.VarChar(255)
   createdAt  DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamp(6)
   authorId   Int
   author     User       @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categoryId Int
   category   Category   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tagId      Int[]
+  tag        Tag        @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   forumId    Int
   Forum      Forum      @relation(fields: [forumId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Comments   Comments[]
@@ -94,28 +103,38 @@ model Comments {
   id             Int        @id @default(autoincrement())
   content        String
   createdAt      DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime   @default(now()) @updatedAt @db.Timestamp(6)
   threadId       Int
   userId         Int
-  quoteMessageId Int
+  quoteMessageId Int?
   thread         Thread     @relation(fields: [threadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User           User       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  quoteMessage   Comments   @relation(name: "QuoteMessage", fields: [quoteMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quoteMessage   Comments?  @relation(name: "QuoteMessage", fields: [quoteMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   quotedMessage  Comments[] @relation(name: "QuoteMessage")
 }
 
 model Category {
   id     Int      @id @default(autoincrement())
-  name   String   @db.VarChar(255)
-  slug   String   @db.VarChar(255)
+  name   String   @unique @db.VarChar(255)
+  slug   String   @unique @db.VarChar(255)
+  Thread Thread[]
+  Forum  Forum[]
+}
+
+model Tag {
+  id     Int      @id @default(autoincrement())
+  name   String   @unique @db.VarChar(255)
+  slug   String   @unique @db.VarChar(255)
   Thread Thread[]
 }
 
 model PrivateMessage {
-  id         Int    @id @default(autoincrement())
-  title      String @db.VarChar(255)
-  content    String @db.VarChar(255)
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(255)
+  content    String   @db.VarChar(255)
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
   toUserId   Int
-  toUser     User   @relation(name: "toUser_User", fields: [toUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  toUser     User     @relation(name: "toUser_User", fields: [toUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   fromUserId Int
-  fromUser   User   @relation(name: "fromUser_User", fields: [fromUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fromUser   User     @relation(name: "fromUser_User", fields: [fromUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

@@ -13,30 +13,30 @@ fastify.register(cors)
 
 // Routes
 fastify.get('/', async (request, reply) => {
+  console.log('Access to root route.')
   return { hello: 'world' }
 })
 fastify.get('/test', async (request, reply) => {
   moment.locale('fr')
   return { diff: diffForHumans('2022-11-05T18:12:33.411Z'), diffMoment: moment('2022-11-05T18:12:33.411Z').fromNow() }
 })
-
+// Build path to route and require every file
 const routesPath = path.join(__dirname, './routes')
 const routesDir = fs.readdirSync(routesPath)
 routesDir.forEach(route => {
   require(path.join(routesPath, route))(fastify)
 })
-
-// require('./routes/GetAllUsersAndPosts')(fastify)
-// require('./routes/GetUserById')(fastify)
-// require('./routes/PostAddUser')(fastify)
-// require('./routes/PostAddPost')(fastify)
-// require('./routes/PostAddProfile')(fastify)
-// require('./routes/PutUpdateUser')(fastify)
+// Require error handling routes
+const errorPath = path.join(__dirname, '/errors')
+const errorDir = fs.readdirSync(errorPath)
+errorDir.forEach(route => {
+  require(path.join(errorPath, route))
+})
 
 // start server
 const start = async () => {
   try {
-    await fastify.listen({ port: process.env.PORT })
+    await fastify.listen({ port: process.env.PORT || 3000 })
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
