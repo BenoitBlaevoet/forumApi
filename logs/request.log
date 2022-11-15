@@ -1,0 +1,6 @@
+request /posts succeed 2
+request /posts succeed 3function () {
+        return Date.now ? Date.now() : +new Date();
+    } request /posts succeed 3
+1668005144210 request /posts succeed 3
+09/11/222022 - 3:47:46 request /posts succeed 3
