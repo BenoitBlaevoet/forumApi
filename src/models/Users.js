@@ -1,4 +1,4 @@
-
+// TODO Ajouter setter & getter pour chaque champ du model
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
@@ -47,6 +47,7 @@ module.exports = class Users {
         userRole: true
       }
     })
+    console.log('in model request')
     return user
   }
 

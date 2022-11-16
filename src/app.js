@@ -1,7 +1,6 @@
 require('dotenv').config()
 const fastify = require('fastify')({ logger: true })
 const middie = require('@fastify/middie')
-const cors = require('@fastify/cors')
 const moment = require('moment')
 require('dotenv').config()
 const diffForHumans = require('./scripts/diffForHumans')
@@ -10,7 +9,25 @@ const fs = require('fs')
 const path = require('path')
 
 fastify.register(middie)
-fastify.register(cors)
+fastify.register(require('@fastify/cors'), (instance) => {
+  return (req, callback) => {
+    const corsOptions = {
+      // This is NOT recommended for production as it enables reflection exploits
+      origin: true
+    }
+
+    // do not include CORS headers for requests from localhost
+    if (/^localhost$/m.test(req.headers.origin)) {
+      corsOptions.origin = false
+    }
+    if (/^127.0.0.1$/m.test(req.headers.origin)) {
+      corsOptions.origin = false
+    }
+
+    // callback expects two parameters: error and options
+    callback(null, corsOptions)
+  }
+})
 
 // Routes
 fastify.get('/', async (request, reply) => {
