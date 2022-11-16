@@ -1,99 +1,99 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
+const slugify = require('slugify')
 
 async function hashPassword (password) {
-  bcrypt.genSalt(10, (err, salt) => {
-    if (err) {
-      throw err
-    } else {
-      bcrypt.hash(password, salt, function (err, hash) {
-        if (err) {
-          throw err
-        } else {
-          return hash
-        }
-      })
-    }
+  const pw = await new Promise((resolve, reject) => {
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) {
+        reject(err)
+      } else {
+        bcrypt.hash(password, salt, function (err, hash) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(hash)
+          }
+        })
+      }
+    })
   })
+  return pw
 }
 
-async function seed ({ benoitpassword, dodopassword }) {
+async function seed () {
+  const firstForum = 'Global'
+  const firstForumSlug = slugify(firstForum)
+  const firstCategory = 'General'
+  const firstCategorySlug = slugify(firstCategory)
+
+  await prisma.forum.upsert({
+    where: { slug: firstForumSlug },
+    update: {},
+    create: {
+      name: firstForum,
+      slug: firstForumSlug,
+      category: {
+        create: {
+          name: firstCategory,
+          slug: firstCategorySlug
+        }
+      },
+      Thread: {
+        create: {
+          title: 'Hello World',
+          slug: 'hello-world',
+          authorId: 1,
+          categoryId: 1,
+          Comments: {
+            create: {
+              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+              userId: 1
+            }
+          }
+        }
+      }
+    }
+  })
+
   const mailBenoit = 'benoit@email.test'
-  const benoit = await prisma.user.upsert({
+  const password = await hashPassword('benoitPassword')
+  await prisma.user.upsert({
     where: { email: mailBenoit },
     update: {},
     create: {
       email: mailBenoit,
-      name: 'benoit',
-      password: 'passwordBenoit',
-      posts: {
-        create: [
-          {
-            title: 'Check out Prisma with Next.js',
-            content: 'https://www.prisma.io/nextjs',
-            published: true
-          },
-          {
-            title: 'Benoit second Post',
-            content: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet.."',
-            published: true
-          },
-          {
-            title: 'Benoit third post',
-            content: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet.."',
-            published: true
-          },
-          {
-            title: 'Benoit fourth post',
-            content: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet.."',
-            published: true
+      username: 'benoit',
+      slug: 'benoit',
+      userRole: {
+        create: {
+          name: 'admin',
+          slug: 'admin',
+          userRights: {
+            create: {
+              createThread: true,
+              readThread: true,
+              deleteOwnThread: true,
+              editOwnThread: true,
+              deleteThread: true,
+              commentThread: true,
+              deleteOwnComment: true,
+              deleteComment: true,
+              sendPrivateMessage: true,
+              banUsers: true
+            }
           }
-        ]
-      }
-    }
-  })
-  const mailDodo = 'dodo@email.test'
-  const dodo = await prisma.user.upsert({
-    where: { email: mailDodo },
-    update: {},
-    create: {
-      email: mailDodo,
-      name: 'dodo',
-      password: 'passwordDodo',
-      posts: {
-        create: [
-          {
-            title: 'Follow Prisma on Twitter',
-            content: 'https://twitter.com/prisma',
-            published: true
-          },
-          {
-            title: 'Follow Nexus on Twitter',
-            content: 'https://twitter.com/nexusgql',
-            published: true
-          }
-        ]
-      }
-    }
-  })
-}
+        }
+      },
+      password
 
-async function CreatePW () {
-  const passwordBenoit = await hashPassword('benoit')
-  const passwordDodo = await hashPassword('dodo')
-  await passwordBenoit
-  await passwordDodo
-  console.log({ passwordBenoit, passwordDodo })
-  return { passwordBenoit, passwordDodo }
+    }
+  })
 }
 
 async function main () {
-  CreatePW()
-    .then((password) => {
-      seed(password)
-      console.log(password)
-    })
+  seed()
 }
 
 main()

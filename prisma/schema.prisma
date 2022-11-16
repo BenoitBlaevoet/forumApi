@@ -25,6 +25,17 @@ model User {
   FavoriteForum FavoriteForum[]
   createdAt     DateTime         @default(now()) @db.Timestamp(6)
   updateAt      DateTime         @default(now()) @updatedAt() @db.Timestamp(6)
+  RefreshToken  RefreshToken[]
+}
+
+model RefreshToken {
+  id          String   @id @unique @default(uuid())
+  hashedToken String
+  userId      Int
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model UserRole {
@@ -92,8 +103,6 @@ model Thread {
   author     User       @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categoryId Int
   category   Category   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tagId      Int[]
-  tag        Tag        @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   forumId    Int
   Forum      Forum      @relation(fields: [forumId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Comments   Comments[]
@@ -119,13 +128,6 @@ model Category {
   slug   String   @unique @db.VarChar(255)
   Thread Thread[]
   Forum  Forum[]
-}
-
-model Tag {
-  id     Int      @id @default(autoincrement())
-  name   String   @unique @db.VarChar(255)
-  slug   String   @unique @db.VarChar(255)
-  Thread Thread[]
 }
 
 model PrivateMessage {

@@ -1,0 +1,20 @@
+const slugify = require('slugify')
+module.exports = (fastify) => {
+  fastify.put('/userObject', async (req, res) => {
+    try {
+      const { id, data } = req.body
+      // Automatically add the key slug to the data if the username is set, so both still matches.
+      if (data.username) { data.slug = slugify(data.username, { lower: true, strict: true }) }
+      const uid = parseInt(id)
+      const updateUser = await new (require('../models/Users'))().update(uid, data)
+
+      // Remove Password from the object to safely return it as response
+      const { password: _, ...returnUser } = updateUser
+      const message = `User ${updateUser.username} has been updated successfully.`
+      res.send(Object.assign({ message }, { returnUser }))
+    } catch (e) {
+      // TODO handle this error
+      console.log(e)
+    }
+  })
+}

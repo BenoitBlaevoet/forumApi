@@ -63,7 +63,6 @@ module.exports = class Users {
   }
 
   async updateUser (id, username, password, email, slug, userRoleId) {
-    console.log(id)
     const user = await prisma.user.update({
       where: {
         id
@@ -75,6 +74,28 @@ module.exports = class Users {
         userRoleId,
         slug
       }
+    })
+    return user
+  }
+
+  async banToggleUser (id, banned = true) {
+    const user = await prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        banned
+      }
+    })
+    return user
+  }
+
+  async update (id, object) {
+    const user = await prisma.user.update({
+      where: {
+        id
+      },
+      data: object
     })
     return user
   }
