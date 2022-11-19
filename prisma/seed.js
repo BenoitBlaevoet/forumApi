@@ -101,8 +101,45 @@ async function seed () {
   })
 }
 
+async function seed2 () {
+  const firstForum = 'Global'
+  const firstForumSlug = slugify(firstForum)
+  const firstCategory = 'General'
+  const firstCategorySlug = slugify(firstCategory)
+
+  await prisma.forum.upsert({
+    where: { slug: firstForumSlug },
+    update: {},
+    create: {
+      name: firstForum,
+      slug: firstForumSlug,
+      category: {
+        create: {
+          name: firstCategory,
+          slug: firstCategorySlug
+        }
+      },
+      Thread: {
+        create: {
+          title: 'Hello World',
+          slug: 'hello-world',
+          authorId: 1,
+          categoryId: 1,
+          Comments: {
+            create: {
+              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+              userId: 1
+            }
+          }
+        }
+      }
+    }
+  })
+}
+
 async function main () {
-  seed()
+  await seed()
+  await seed2()
 }
 
 main()
