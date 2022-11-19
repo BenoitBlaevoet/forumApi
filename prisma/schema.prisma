@@ -116,6 +116,7 @@ model Comments {
   threadId       Int
   userId         Int
   quoteMessageId Int?
+  isOG           Boolean    @default(false)
   thread         Thread     @relation(fields: [threadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User           User       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   quoteMessage   Comments?  @relation(name: "QuoteMessage", fields: [quoteMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)

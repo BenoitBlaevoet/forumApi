@@ -23,40 +23,6 @@ async function hashPassword (password) {
 }
 
 async function seed () {
-  const firstForum = 'Global'
-  const firstForumSlug = slugify(firstForum)
-  const firstCategory = 'General'
-  const firstCategorySlug = slugify(firstCategory)
-
-  await prisma.forum.upsert({
-    where: { slug: firstForumSlug },
-    update: {},
-    create: {
-      name: firstForum,
-      slug: firstForumSlug,
-      category: {
-        create: {
-          name: firstCategory,
-          slug: firstCategorySlug
-        }
-      },
-      Thread: {
-        create: {
-          title: 'Hello World',
-          slug: 'hello-world',
-          authorId: 1,
-          categoryId: 1,
-          Comments: {
-            create: {
-              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-              userId: 1
-            }
-          }
-        }
-      }
-    }
-  })
-
   const mailBenoit = 'benoit@email.test'
   const password = await hashPassword('benoitPassword')
   await prisma.user.upsert({
@@ -88,6 +54,49 @@ async function seed () {
       },
       password
 
+    }
+  })
+
+  const firstForum = 'Global'
+  const firstForumSlug = slugify(firstForum)
+  const firstCategory = 'General'
+  const firstCategorySlug = slugify(firstCategory)
+
+  await prisma.forum.upsert({
+    where: { slug: firstForumSlug },
+    update: {},
+    create: {
+      name: firstForum,
+      slug: firstForumSlug,
+      category: {
+        create: {
+          name: firstCategory,
+          slug: firstCategorySlug
+        }
+      },
+      Thread: {
+        create: {
+          title: 'Hello World',
+          slug: 'hello-world',
+          authorId: 1,
+          categoryId: 1,
+          Comments: {
+            create: {
+              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+              userId: 1,
+              isOG: true,
+              quotedMessage: {
+                create: {
+                  threadId: 1,
+                  content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+                  userId: 1,
+                  isOG: false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   })
 }
