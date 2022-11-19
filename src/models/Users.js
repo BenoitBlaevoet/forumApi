@@ -44,7 +44,8 @@ module.exports = class Users {
         email
       },
       include: {
-        userRole: true
+        userRole: true,
+        RefreshToken: true
       }
     })
     console.log('in model request')
