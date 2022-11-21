@@ -75,27 +75,74 @@ async function seed () {
         }
       },
       Thread: {
-        create: {
-          title: 'Hello World',
-          slug: 'hello-world',
-          authorId: 1,
-          categoryId: 1,
-          Comments: {
-            create: {
-              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-              userId: 1,
-              isOG: true,
-              quotedMessage: {
-                create: {
-                  threadId: 1,
-                  content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-                  userId: 1,
-                  isOG: false
+        create: [
+          {
+            title: 'Hello World',
+            slug: 'hello-world',
+            authorId: 1,
+            categoryId: 1,
+            Comments: {
+              create: {
+                content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+                userId: 1,
+                isOG: true,
+                quotedMessage: {
+                  create: {
+                    threadId: 1,
+                    content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
+                    userId: 1,
+                    isOG: false
+                  }
+                }
+              }
+            }
+          },
+          {
+            title: 'Hello World 2',
+            slug: 'hello-world-2',
+            authorId: 1,
+            categoryId: 1,
+            Comments: {
+              create: {
+                content: 'This is not lorem, this is the first thread created on the forum via Prisma seed',
+                userId: 1,
+                isOG: true,
+                quotedMessage: {
+                  create: {
+                    threadId: 1,
+                    content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                    userId: 1,
+                    isOG: false,
+                    quotedMessage: {
+                      create: {
+                        threadId: 1,
+                        content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                        userId: 1,
+                        isOG: false,
+                        quotedMessage: {
+                          create: {
+                            threadId: 1,
+                            content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                            userId: 1,
+                            isOG: false,
+                            quotedMessage: {
+                              create: {
+                                threadId: 1,
+                                content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                                userId: 1,
+                                isOG: false
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
           }
-        }
+        ]
       }
     }
   })
@@ -139,7 +186,7 @@ async function seed2 () {
 
 async function main () {
   await seed()
-  await seed2()
+  // await seed2()
 }
 
 main()
