@@ -16,6 +16,7 @@ module.exports = class Threads {
     return await prisma.thread.findMany({
       include: {
         _count: true,
+        Forum: true,
         author: {
           select: authorOption
         }
@@ -34,6 +35,7 @@ module.exports = class Threads {
           where: {
             quoteMessageId: null
           },
+
           include: {
             quotedMessage: {
               include: {

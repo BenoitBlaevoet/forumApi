@@ -51,6 +51,19 @@ module.exports = class Users {
     })
   }
 
+  async getUserBySlug (slug) {
+    console.log(slug)
+    return await prisma.user.findUniqueOrThrow({
+      where: {
+        slug
+      },
+      include: {
+        threads: true,
+        _count: true
+      }
+    })
+  }
+
   async getUserByEmail (email) {
     const user = await prisma.user.findUniqueOrThrow({
       where: {
