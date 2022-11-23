@@ -104,38 +104,50 @@ async function seed () {
             categoryId: 1,
             Comments: {
               create: {
-                content: 'This is not lorem, this is the first thread created on the forum via Prisma seed',
+                content: 'Sportsman do offending supported extremity breakfast by listening. Decisively advantages nor expression unpleasing she led met. Estate was tended ten boy nearer seemed. As so seeing latter he should thirty whence. Steepest speaking up attended it as. Made neat an on be gave show snug tore.',
                 userId: 1,
                 isOG: true,
                 quotedMessage: {
                   create: {
-                    threadId: 1,
-                    content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                    threadId: 2,
+                    content: 'Feet evil to hold long he open knew an no. Apartments occasional boisterous as solicitude to introduced. Or fifteen covered we enjoyed demesne is in prepare. In stimulated my everything it literature. Greatly explain attempt perhaps in feeling he. House men taste bed not drawn joy. Through enquire however do equally herself at. Greatly way old may you present improve. Wishing the feeling village him musical.',
                     userId: 1,
                     isOG: false,
                     quotedMessage: {
-                      create: {
-                        threadId: 1,
-                        content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                      create: [{
+                        threadId: 2,
+                        content: 'Same an quit most an. Admitting an mr disposing sportsmen. Tried on cause no spoil arise plate. Longer ladies valley get esteem use led six. Middletons resolution advantages expression themselves partiality so me at. West none hope if sing oh sent tell is.',
                         userId: 1,
                         isOG: false,
                         quotedMessage: {
                           create: {
-                            threadId: 1,
-                            content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                            threadId: 2,
+                            content: 'Carriage quitting securing be appetite it declared. High eyes kept so busy feel call in. Would day nor ask walls known. But preserved advantage are but and certainty earnestly enjoyment. Passage weather as up am exposed. And natural related man subject. Eagerness get situation his was delighted.',
                             userId: 1,
                             isOG: false,
                             quotedMessage: {
                               create: {
-                                threadId: 1,
-                                content: 'Le message de la muerte, this is the first thread created on the forum via Prisma seed',
+                                threadId: 2,
+                                content: 'Remember outweigh do he desirous no cheerful. Do of doors water ye guest. We if prosperous comparison middletons at. Park we in lose like at no. An so to preferred convinced distrusts he determine. In musical me my placing clothes comfort pleased hearing. Any residence you satisfied and rapturous certainty two. Procured outweigh as outlived so so. On in bringing graceful proposal blessing of marriage outlived. Son rent face our loud near.',
                                 userId: 1,
                                 isOG: false
                               }
                             }
                           }
                         }
-                      }
+                      },
+                      {
+                        threadId: 2,
+                        content: 'Now residence dashwoods she excellent you. Shade being under his bed her. Much read on as draw. Blessing for ignorant exercise any yourself unpacked. Pleasant horrible but confined day end marriage. Eagerness furniture set preserved far recommend. Did even but nor are most gave hope. Secure active living depend son repair day ladies now.',
+                        userId: 1,
+                        isOG: false
+                      },
+                      {
+                        threadId: 2,
+                        content: 'Difficulty on insensible reasonable in. From as went he they. Preference themselves me as thoroughly partiality considered on in estimating. Middletons acceptance discovered projecting so is so or. In or attachment inquietude remarkably comparison at an. Is surrounded prosperous stimulated am me discretion expression. But truth being state can she china widow. Occasional preference fat remarkably now projecting uncommonly dissimilar. Sentiments projection particular companions interested do at my delightful.',
+                        userId: 1,
+                        isOG: false
+                      }]
                     }
                   }
                 }
