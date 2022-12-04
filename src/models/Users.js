@@ -64,6 +64,32 @@ module.exports = class Users {
     })
   }
 
+  // safe mean without password and other sensible informations
+  async getUserByIdSafe (id) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: {
+        id
+      },
+      select: {
+        id: false,
+        username: true,
+        slug: true,
+        email: false,
+        userRole: true,
+        FavoriteForum: true,
+        banned: true,
+        desactivated: true,
+        password: false,
+        threads: false,
+        Profile: false,
+        createdAt: false,
+        updateAt: false,
+        RefreshToken: true
+      }
+    })
+    return user
+  }
+
   async getUserByEmail (email) {
     const user = await prisma.user.findUniqueOrThrow({
       where: {
@@ -74,7 +100,6 @@ module.exports = class Users {
         RefreshToken: true
       }
     })
-    console.log('in model request')
     return user
   }
 

@@ -1,32 +1,28 @@
 const bcrypt = require('bcrypt')
-async function hashPassword (password) {
-  const pw = await new Promise((resolve, reject) => {
-    bcrypt.genSalt(10, (err, salt) => {
-      if (err) {
-        reject(err)
-      } else {
-        bcrypt.hash(password, salt, function (err, hash) {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(hash)
-          }
-        })
-      }
-    })
-  })
-  return pw
-}
+const { hashPassword } = require('../scripts/hashPw')
+const { v4: uuidv4 } = require('uuid')
+const { generateTokens } = require('../scripts/jwt')
+const {
+  addRefreshTokenToWhitelist
+} = require('../scripts/auth.services')
+const userModel = new (require('../models/Users'))()
+
 module.exports = (fastify) => {
   fastify.post('/userloggin', async (request, reply) => {
     const errorFb = "L'email ou le mot de passe est incorrect"
     const { email, password } = request.body
     try {
-      const user = await new (require('../models/Users'))().getUserByEmail(email)
+      const user = await userModel.getUserByEmail(email)
 
       if (bcrypt.compare(password, user.password)) {
-        const { password: _, ...returnUser } = user
-        reply.status(200).send({ ok: 1, user: returnUser, message: `L'utilisateur ${user.username} a bien été trouver dans la base de donnée` })
+        console.log('here')
+        const returnUser = await userModel.getUserByIdSafe(user.id)
+        const jti = uuidv4()
+        const { accessToken, refreshToken } = generateTokens(user, jti)
+        await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id })
+        console.log(accessToken, refreshToken)
+        const token = { accessToken, refreshToken }
+        reply.status(200).send({ ok: 1, user: returnUser, message: `L'utilisateur ${user.username} a bien été trouver dans la base de donnée`, token })
       } else {
         console.log(user.password + ' ' + await hashPassword(password))
         reply.status(404).send({ ok: 0, message: errorFb })
