@@ -115,6 +115,12 @@ module.exports = class Users {
     return user.userRoleId
   }
 
+  async createUser (user) {
+    return await prisma.user.create({
+      data: user
+    })
+  }
+
   async updateUser (id, username, password, email, slug, userRoleId) {
     const user = await prisma.user.update({
       where: {

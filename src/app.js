@@ -40,10 +40,16 @@ fastify.get('/test', async (request, reply) => {
 })
 // Build path to route and require every file
 const routesPath = path.join(__dirname, './routes')
-const routesDir = fs.readdirSync(routesPath)
-routesDir.forEach(route => {
-  require(path.join(routesPath, route))(fastify)
+fs.readdirSync(routesPath, (err, routesDir) => {
+  if (err) {
+    console.error(err)
+    process.exit(1)
+  }
+  routesDir.forEach(route => {
+    require(path.join(routesPath, route))(fastify)
+  })
 })
+
 // Require error handling routes
 const errorPath = path.join(__dirname, '/errors')
 const errorDir = fs.readdirSync(errorPath)

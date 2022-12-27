@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id            Int              @id @default(autoincrement())
+  id            String           @unique @db.Uuid @default(uuid())
   username      String           @unique @db.VarChar(25)
   slug          String           @unique @db.VarChar(25)
   email         String           @unique @db.VarChar(255)
@@ -17,7 +17,7 @@ model User {
   desactivated  Boolean          @default(false)
   threads       Thread[]
   Profile       Profile?
-  Comments      Comments[]
+  Comments      Comment[]
   userRoleId    Int
   userRole      UserRole         @relation(fields: [userRoleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   fromUser      PrivateMessage[] @relation(name: "fromUser_User")
@@ -31,7 +31,7 @@ model User {
 model RefreshToken {
   id          String   @id @unique @default(uuid())
   hashedToken String
-  userId      Int
+  userId      String
   User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -69,7 +69,7 @@ model Profile {
   firstname String? @db.VarChar(255)
   bio       String?
   avatar    String?
-  userId    Int     @unique
+  userId    String     @unique
   User      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
@@ -85,42 +85,35 @@ model Forum {
   updatedAt     DateTime        @default(now()) @updatedAt @db.Timestamp(6)
 }
 
-model FavoriteForum {
-  id      Int   @id @default(autoincrement())
-  userId  Int
-  forumId Int
-  User    User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Forum   Forum @relation(fields: [forumId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-}
 
 model Thread {
   id         Int        @id @default(autoincrement())
   title      String     @db.VarChar(255)
   slug       String     @unique @db.VarChar(255)
+  content        String
   createdAt  DateTime   @default(now()) @db.Timestamp(6)
   updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamp(6)
-  authorId   Int
+  authorId   String
   author     User       @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categoryId Int
   category   Category   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   forumId    Int
   Forum      Forum      @relation(fields: [forumId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Comments   Comments[]
+  Comments   Comment[]
 }
 
-model Comments {
+model Comment {
   id             Int        @id @default(autoincrement())
   content        String
   createdAt      DateTime   @default(now()) @db.Timestamp(6)
   updatedAt      DateTime   @default(now()) @updatedAt @db.Timestamp(6)
   threadId       Int
-  userId         Int
+  userId         String
   quoteMessageId Int?
-  isOG           Boolean    @default(false)
   thread         Thread     @relation(fields: [threadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User           User       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  quoteMessage   Comments?  @relation(name: "QuoteMessage", fields: [quoteMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  quotedMessage  Comments[] @relation(name: "QuoteMessage")
+  quoteMessage   Comment?  @relation(name: "QuoteMessage", fields: [quoteMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quotedMessage  Comment[] @relation(name: "QuoteMessage")
 }
 
 model Category {
@@ -136,8 +129,16 @@ model PrivateMessage {
   title      String   @db.VarChar(255)
   content    String   @db.VarChar(255)
   createdAt  DateTime @default(now()) @db.Timestamp(6)
-  toUserId   Int
+  toUserId   String
   toUser     User     @relation(name: "toUser_User", fields: [toUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  fromUserId Int
+  fromUserId String
   fromUser   User     @relation(name: "fromUser_User", fields: [fromUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model FavoriteForum {
+  id      Int   @id @default(autoincrement())
+  userId  String
+  forumId Int
+  User    User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Forum   Forum @relation(fields: [forumId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }

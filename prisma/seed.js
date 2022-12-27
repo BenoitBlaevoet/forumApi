@@ -1,212 +1,192 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
-const bcrypt = require('bcrypt')
+const { faker } = require('@faker-js/faker')
 const slugify = require('slugify')
 
-async function hashPassword (password) {
-  const pw = await new Promise((resolve, reject) => {
-    bcrypt.genSalt(10, (err, salt) => {
-      if (err) {
-        reject(err)
-      } else {
-        bcrypt.hash(password, salt, function (err, hash) {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(hash)
-          }
-        })
-      }
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+
+const user = []
+const userRole = []
+const userRights = []
+const profile = []
+const forum = []
+const thread = []
+const comments = []
+const category = []
+
+for (let i = 0; i < 10; i++) {
+  const value = i + 1
+  const username = faker.internet.userName()
+  user.push({
+    username,
+    slug: slugify(username),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    banned: faker.datatype.boolean(),
+    desactivated: faker.datatype.boolean(),
+    userRoleId: 2
+  })
+  profile.push({
+    name: faker.name.firstName(),
+    firstname: faker.name.lastName(),
+    bio: faker.lorem.sentences(),
+    avatar: faker.image.avatar(),
+    userId: value
+  })
+  const categoryname = faker.lorem.word()
+  category.push({
+    name: categoryname,
+    slug: slugify(categoryname)
+  })
+}
+
+for (let i = 0; i < 5; i++) {
+  const forumname = faker.random.word()
+  forum.push({
+    name: forumname,
+    slug: slugify(forumname),
+    categoryId: faker.datatype.number({ min: 1, max: 5 })
+  })
+}
+
+for (let i = 0; i < 50; i++) {
+  const threadTitle = faker.lorem.sentence()
+  thread.push({
+    title: threadTitle,
+    slug: slugify(threadTitle),
+    content: faker.lorem.text(),
+    authorId: faker.datatype.number({ min: 1, max: 10 }),
+    categoryId: faker.datatype.number({ min: 1, max: 10 }),
+    forumId: faker.datatype.number({ min: 1, max: 5 })
+  })
+}
+
+for (let i = 0; i < 450; i++) {
+  comments.push({
+    content: faker.lorem.text(),
+    threadId: faker.datatype.number({ min: 1, max: 50 }),
+    userId: faker.datatype.number({ min: 1, max: 10 })
+  })
+}
+// User
+
+userRights.push({
+  id: 1,
+  createThread: true,
+  readThread: true,
+  deleteOwnThread: true,
+  editOwnThread: true,
+  editThread: false,
+  deleteThread: false,
+  commentThread: true,
+  deleteOwnComment: true,
+  deleteComment: false,
+  sendPrivateMessage: true,
+  banUsers: false
+})
+
+userRole.push({
+  name: 'User',
+  slug: 'user',
+  userRightsId: 1
+})
+// Admin
+userRights.push({
+  id: 2,
+  createThread: true,
+  readThread: true,
+  deleteOwnThread: true,
+  editOwnThread: true,
+  editThread: true,
+  deleteThread: true,
+  commentThread: true,
+  deleteOwnComment: true,
+  deleteComment: true,
+  sendPrivateMessage: true,
+  banUsers: true
+})
+userRole.push({
+  name: 'Admin',
+  slug: 'admin',
+  userRightsId: 2
+})
+
+const seedData = async () => {
+  // Seed userRights data
+  await Promise.all(
+    userRights.map(async (ur) => {
+      await prisma.userRights.create({
+        data: ur
+      })
     })
-  })
-  return pw
+  )
+  // Seed userRole data
+  await Promise.all(
+    userRole.map(async (ur) => {
+      await prisma.userRole.create({
+        data: ur
+      })
+    })
+  )
+  // Seed user data
+  await Promise.all(
+    user.map(async (u) => {
+      await prisma.user.create({
+        data: u
+      })
+    })
+  )
+
+  // Seed profile data
+  await Promise.all(
+    profile.map(async (p) => {
+      await prisma.profile.create({
+        data: p
+      })
+    })
+  )
+  // Seed category data
+  await Promise.all(
+    category.map(async (c) => {
+      await prisma.category.create({
+        data: c
+      })
+    })
+  )
+  // Seed forum data
+  await Promise.all(
+    forum.map(async (f) => {
+      await prisma.forum.create({
+        data: f
+      })
+    })
+  )
+
+  // Seed thread data
+  await Promise.all(
+    thread.map(async (t) => {
+      await prisma.thread.create({
+        data: t
+      })
+    })
+  )
+
+  // Seed comment data
+  await Promise.all(
+    comments.map(async (c) => {
+      await prisma.comments.create({
+        data: c
+      })
+    })
+  )
 }
-
-async function seed () {
-  const mailBenoit = 'benoit@email.test'
-  const password = await hashPassword('benoitPassword')
-  await prisma.user.upsert({
-    where: { email: mailBenoit },
-    update: {},
-    create: {
-      email: mailBenoit,
-      username: 'benoit',
-      slug: 'benoit',
-      userRole: {
-        create: {
-          name: 'admin',
-          slug: 'admin',
-          userRights: {
-            create: {
-              createThread: true,
-              readThread: true,
-              deleteOwnThread: true,
-              editOwnThread: true,
-              deleteThread: true,
-              commentThread: true,
-              deleteOwnComment: true,
-              deleteComment: true,
-              sendPrivateMessage: true,
-              banUsers: true
-            }
-          }
-        }
-      },
-      password
-
-    }
-  })
-
-  const firstForum = 'Global'
-  const firstForumSlug = slugify(firstForum)
-  const firstCategory = 'General'
-  const firstCategorySlug = slugify(firstCategory)
-
-  await prisma.forum.upsert({
-    where: { slug: firstForumSlug },
-    update: {},
-    create: {
-      name: firstForum,
-      slug: firstForumSlug,
-      category: {
-        create: {
-          name: firstCategory,
-          slug: firstCategorySlug
-        }
-      },
-      Thread: {
-        create: [
-          {
-            title: 'Hello World',
-            slug: 'hello-world',
-            authorId: 1,
-            categoryId: 1,
-            Comments: {
-              create: {
-                content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-                userId: 1,
-                isOG: true,
-                quotedMessage: {
-                  create: {
-                    threadId: 1,
-                    content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-                    userId: 1,
-                    isOG: false
-                  }
-                }
-              }
-            }
-          },
-          {
-            title: 'Hello World 2',
-            slug: 'hello-world-2',
-            authorId: 1,
-            categoryId: 1,
-            Comments: {
-              create: {
-                content: 'Sportsman do offending supported extremity breakfast by listening. Decisively advantages nor expression unpleasing she led met. Estate was tended ten boy nearer seemed. As so seeing latter he should thirty whence. Steepest speaking up attended it as. Made neat an on be gave show snug tore.',
-                userId: 1,
-                isOG: true,
-                quotedMessage: {
-                  create: {
-                    threadId: 2,
-                    content: 'Feet evil to hold long he open knew an no. Apartments occasional boisterous as solicitude to introduced. Or fifteen covered we enjoyed demesne is in prepare. In stimulated my everything it literature. Greatly explain attempt perhaps in feeling he. House men taste bed not drawn joy. Through enquire however do equally herself at. Greatly way old may you present improve. Wishing the feeling village him musical.',
-                    userId: 1,
-                    isOG: false,
-                    quotedMessage: {
-                      create: [{
-                        threadId: 2,
-                        content: 'Same an quit most an. Admitting an mr disposing sportsmen. Tried on cause no spoil arise plate. Longer ladies valley get esteem use led six. Middletons resolution advantages expression themselves partiality so me at. West none hope if sing oh sent tell is.',
-                        userId: 1,
-                        isOG: false,
-                        quotedMessage: {
-                          create: {
-                            threadId: 2,
-                            content: 'Carriage quitting securing be appetite it declared. High eyes kept so busy feel call in. Would day nor ask walls known. But preserved advantage are but and certainty earnestly enjoyment. Passage weather as up am exposed. And natural related man subject. Eagerness get situation his was delighted.',
-                            userId: 1,
-                            isOG: false,
-                            quotedMessage: {
-                              create: {
-                                threadId: 2,
-                                content: 'Remember outweigh do he desirous no cheerful. Do of doors water ye guest. We if prosperous comparison middletons at. Park we in lose like at no. An so to preferred convinced distrusts he determine. In musical me my placing clothes comfort pleased hearing. Any residence you satisfied and rapturous certainty two. Procured outweigh as outlived so so. On in bringing graceful proposal blessing of marriage outlived. Son rent face our loud near.',
-                                userId: 1,
-                                isOG: false
-                              }
-                            }
-                          }
-                        }
-                      },
-                      {
-                        threadId: 2,
-                        content: 'Now residence dashwoods she excellent you. Shade being under his bed her. Much read on as draw. Blessing for ignorant exercise any yourself unpacked. Pleasant horrible but confined day end marriage. Eagerness furniture set preserved far recommend. Did even but nor are most gave hope. Secure active living depend son repair day ladies now.',
-                        userId: 1,
-                        isOG: false
-                      },
-                      {
-                        threadId: 2,
-                        content: 'Difficulty on insensible reasonable in. From as went he they. Preference themselves me as thoroughly partiality considered on in estimating. Middletons acceptance discovered projecting so is so or. In or attachment inquietude remarkably comparison at an. Is surrounded prosperous stimulated am me discretion expression. But truth being state can she china widow. Occasional preference fat remarkably now projecting uncommonly dissimilar. Sentiments projection particular companions interested do at my delightful.',
-                        userId: 1,
-                        isOG: false
-                      }]
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    }
-  })
-}
-
-async function seed2 () {
-  const firstForum = 'Global'
-  const firstForumSlug = slugify(firstForum)
-  const firstCategory = 'General'
-  const firstCategorySlug = slugify(firstCategory)
-
-  await prisma.forum.upsert({
-    where: { slug: firstForumSlug },
-    update: {},
-    create: {
-      name: firstForum,
-      slug: firstForumSlug,
-      category: {
-        create: {
-          name: firstCategory,
-          slug: firstCategorySlug
-        }
-      },
-      Thread: {
-        create: {
-          title: 'Hello World',
-          slug: 'hello-world',
-          authorId: 1,
-          categoryId: 1,
-          Comments: {
-            create: {
-              content: 'Lorem Ipsum Dolor Sit Amet, this is the first thread created on the forum via Prisma seed',
-              userId: 1
-            }
-          }
-        }
-      }
-    }
-  })
-}
-
-async function main () {
-  await seed()
-  // await seed2()
-}
-
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+seedData()
+// module.exports = {
+//   user,
+//   userRole,
+//   userRights,
+//   profile,
+//   forum,
+//   thread,
+//   comments,
+//   category
+// }
