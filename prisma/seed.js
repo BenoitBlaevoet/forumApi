@@ -18,7 +18,7 @@ for (let i = 0; i < 10; i++) {
   const username = faker.internet.userName()
   user.push({
     username,
-    slug: slugify(username),
+    slug: slugify(username, { lower: true, strict: true }),
     email: faker.internet.email(),
     password: faker.internet.password(),
     banned: faker.datatype.boolean(),
@@ -35,7 +35,7 @@ for (let i = 0; i < 10; i++) {
   const categoryname = faker.lorem.word()
   category.push({
     name: categoryname,
-    slug: slugify(categoryname)
+    slug: slugify(categoryname, { lower: true, strict: true })
   })
 }
 
@@ -43,7 +43,7 @@ for (let i = 0; i < 5; i++) {
   const forumname = faker.random.word()
   forum.push({
     name: forumname,
-    slug: slugify(forumname),
+    slug: slugify(forumname, { lower: true, strict: true }),
     categoryId: faker.datatype.number({ min: 1, max: 5 })
   })
 }
@@ -52,7 +52,7 @@ for (let i = 0; i < 50; i++) {
   const threadTitle = faker.lorem.sentence()
   thread.push({
     title: threadTitle,
-    slug: slugify(threadTitle),
+    slug: slugify(threadTitle, { lower: true, strict: true }),
     content: faker.lorem.text(),
     authorId: faker.datatype.number({ min: 1, max: 10 }),
     categoryId: faker.datatype.number({ min: 1, max: 10 }),

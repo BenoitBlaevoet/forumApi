@@ -8,11 +8,27 @@ const {
   addRefreshTokenToWhitelist
 } = require('../scripts/auth.services')
 
+const cryptPW = async (request, reply, done) => {
+  request.body.password = await hashPassword(request.body.password)
+}
+
+// Fastify schema to validate data
+const schema = {
+  body: {
+    type: 'object',
+    properties: {
+      username: { type: 'string' },
+      email: { type: 'string', format: 'email' },
+      password: { type: 'string' },
+      userRoleId: { type: 'number' }
+    }
+  }
+}
+
 module.exports = (fastify) => {
   fastify.post('/user/register', {
-    preHandler: async (request, reply, done) => {
-      request.body.password = await hashPassword(request.body.password)
-    }
+    preHandler: [cryptPW],
+    schema
   }, async (request, reply) => {
     try {
       const { username } = request.body
