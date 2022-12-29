@@ -3,18 +3,23 @@ const User = new (require('../models/Users'))()
 const slugify = require('slugify')
 const { v4: uuidv4 } = require('uuid')
 const { generateTokens } = require('../scripts/jwt')
+const { hashPassword } = require('../scripts/hashPw')
 const {
   addRefreshTokenToWhitelist
 } = require('../scripts/auth.services')
 
 module.exports = (fastify) => {
-  fastify.post('/adduser', async (request, reply) => {
+  fastify.post('/user/register', {
+    preHandler: async (request, reply, done) => {
+      request.body.password = await hashPassword(request.body.password)
+    }
+  }, async (request, reply) => {
     try {
       const { username } = request.body
       const slug = slugify(username, { lower: true, strict: true })
 
-      const newUser = Object.assign(slug, request.body)
-      const user = User.createUser(newUser)
+      const newUser = Object.assign({ slug }, request.body)
+      const user = await User.createUser(newUser)
       const requestFeedback = { message: `L'utilisateur ${user.username} a bien été ajouter dans la base de donnée` }
 
       const jti = uuidv4()

@@ -180,13 +180,3 @@ const seedData = async () => {
   )
 }
 seedData()
-// module.exports = {
-//   user,
-//   userRole,
-//   userRights,
-//   profile,
-//   forum,
-//   thread,
-//   comments,
-//   category
-// }
