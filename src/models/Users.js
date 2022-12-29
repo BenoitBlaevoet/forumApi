@@ -121,18 +121,12 @@ module.exports = class Users {
     })
   }
 
-  async updateUser (id, username, password, email, slug, userRoleId) {
+  async updateUser (data) {
     const user = await prisma.user.update({
       where: {
-        id
+        id: data.id
       },
-      data: {
-        username,
-        email,
-        password,
-        userRoleId,
-        slug
-      }
+      data
     })
     return user
   }

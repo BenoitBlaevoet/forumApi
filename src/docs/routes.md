@@ -4,4 +4,12 @@
 
 ### Register
 
-[/user/register](./register.md)
+[/user/register](./userRegister.md)
+
+### Login
+
+[/user/login](./userLogin.md)
+
+### Update
+
+[/user](./userUpdate.md)
