@@ -5,7 +5,7 @@
 
 ## Project description
 
-Currently learning NodeJS, i am creating a backend api for a message board (in the like of reddit).
+Currently learning NodeJS, i am creating a backend api for a message board.
 
 - Forum creation
 - User Management
