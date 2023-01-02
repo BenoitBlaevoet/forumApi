@@ -1,8 +1,13 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { postSchema } = require('../schema')
+const { slugField } = require('../scripts/prehandlers')
 
 module.exports = (fastify) => {
-  fastify.post('/addpost', async (request, reply) => {
+  fastify.post('/addpost', {
+    preHandler: [slugField],
+    postSchema
+  }, async (request, reply) => {
     try {
       const { title, content, authorId } = request.body
       const post = await prisma.post.create({

@@ -1,7 +1,11 @@
 require('dotenv').config()
 const fastify = require('fastify')({ logger: true })
 const middie = require('@fastify/middie')
+const jwt = require('jsonwebtoken')
 const moment = require('moment')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+
 require('dotenv').config()
 const diffForHumans = require('./scripts/diffForHumans')
 
@@ -28,6 +32,45 @@ fastify.register(require('@fastify/cors'), (instance) => {
     callback(null, corsOptions)
   }
 })
+
+fastify
+  .decorate('verifyJWT', (request, reply, done) => {
+    try {
+      if (!request.headers.authorization) {
+        throw new Error('No token was sent')
+      }
+      const token = request.headers.authorization.replace('Bearer ', '')
+      const isValid = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+      if (!isValid) {
+        throw new Error('Token is invalid')
+      }
+    } catch (e) {
+      reply.code(401).send(e)
+    }
+    done()
+  })
+  .register(require('@fastify/auth'))
+  .after(() => {
+    fastify.route({
+      method: 'POST',
+      url: '/comment/new',
+      preHandler: fastify.auth([
+        fastify.verifyJWT
+      ]),
+      handler: async (req, reply) => {
+        try {
+          console.log(req.body)
+          const post = await prisma.comments.create({
+            data: req.body
+          })
+          const requestFeedback = { message: `La publication : ${post.title}. à bien été enregistrée` }
+          reply.status(200).send(Object.assign(post, requestFeedback))
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    })
+  })
 
 // Routes
 fastify.get('/', async (request, reply) => {

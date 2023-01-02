@@ -1,6 +1,5 @@
 const slugify = require('slugify')
 const { hashPassword } = require('./hashPw')
-
 const cryptPW = async (request, reply, done) => {
   if (!request.body.password) return
   request.body.password = await hashPassword(request.body.password)
